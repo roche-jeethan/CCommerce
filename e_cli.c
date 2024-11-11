@@ -2,21 +2,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
 #define MAX_PRODUCTS 100
-#define INR_CONVERSION_RATE 74.85 // Assume 1 USD = 74.85 INR
-#define GST_RATE 0.05 // 5% GST
-
+#define INR_CONVERSION_RATE 84.83
+#define GST_RATE 0.05
 // Structure for each product in the linked list
 typedef struct Product {
     int id;
     char name[50];
-    float price; // USD price
+    float price; //$ price
     int stock;
     struct Product* next;
 } Product;
-
-// Node for queue to store customer orders
 typedef struct OrderNode {
     int productId;
     int quantity;
@@ -25,12 +21,10 @@ typedef struct OrderNode {
     struct OrderNode* next;
 } OrderNode;
 
-// Global pointers for product catalog and order queue
 Product* productCatalog = NULL;
 OrderNode* orderQueueFront = NULL;
 OrderNode* orderQueueRear = NULL;
 
-// Linked List Operations for Product Catalog
 void addProduct(int id, char name[], float price, int stock) {
     Product* newProduct = (Product*)malloc(sizeof(Product));
     newProduct->id = id;
@@ -51,26 +45,20 @@ void displayProducts() {
     }
 }
 
-// Queue Operations for Order Management
 void enqueueOrder(int productId, int quantity) {
     Product* product = productCatalog;
-    
-    // Find product by ID
     while (product != NULL && product->id != productId) {
         product = product->next;
     }
-
     if (product == NULL) {
         printf("Product ID %d not found.\n", productId);
         return;
     }
-
     if (quantity > product->stock) {
         printf("Error: Requested quantity (%d) exceeds available stock (%d) for product %s.\n",
                quantity, product->stock, product->name);
         return;
     }
-
     float totalAmount = product->price * quantity * INR_CONVERSION_RATE;
     OrderNode* newOrder = (OrderNode*)malloc(sizeof(OrderNode));
     newOrder->productId = productId;
@@ -78,15 +66,12 @@ void enqueueOrder(int productId, int quantity) {
     newOrder->totalAmount = totalAmount;
     strcpy(newOrder->deliveryStatus, "Pending"); // Initial status is only "Pending"
     newOrder->next = NULL;
-
     if (orderQueueRear == NULL) {
         orderQueueFront = orderQueueRear = newOrder;
     } else {
         orderQueueRear->next = newOrder;
         orderQueueRear = newOrder;
     }
-
-    // Update stock after order is added
     product->stock -= quantity;
     printf("Order placed for Product ID %d (%s), Quantity: %d, Total Amount: %.2f INR\n",
            productId, product->name, quantity, totalAmount);
@@ -101,21 +86,14 @@ void dequeueOrder() {
         printf("No orders in queue.\n");
         return;
     }
-    
     OrderNode* temp = orderQueueFront;
-
-    // Print current processing details
     printf("Processing order for Product ID %d, Quantity %d, Total Amount %.2f INR, Delivery Status: %s\n",
            temp->productId, temp->quantity, temp->totalAmount, temp->deliveryStatus);
-
-    // Update delivery status in the correct sequence
     if (strcmp(temp->deliveryStatus, "Pending") == 0) {
         strcpy(temp->deliveryStatus, "Dispatched");
     } else if (strcmp(temp->deliveryStatus, "Dispatched") == 0) {
         strcpy(temp->deliveryStatus, "Delivered");
     }
-
-    // If the order is "Delivered," remove it from the queue
     if (strcmp(temp->deliveryStatus, "Delivered") == 0) {
         orderQueueFront = orderQueueFront->next;
         if (orderQueueFront == NULL) orderQueueRear = NULL;
@@ -123,18 +101,14 @@ void dequeueOrder() {
     }
 }
 
-
-// Calculate and Display Total Bill with Split-Up
 void displayTotalBill() {
     if (orderQueueFront == NULL) {
         printf("Order queue is empty.\n");
         return;
     }
-
     OrderNode* temp = orderQueueFront;
     float grandTotal = 0.0;
     int totalItems = 0;
-
     printf("Order Queue with Split-Up Amounts (INR):\n");
     while (temp != NULL) {
         printf("Product ID: %d, Quantity: %d, Total Amount: %.2f, Delivery Status: %s\n",
@@ -143,8 +117,6 @@ void displayTotalBill() {
         totalItems += temp->quantity;
         temp = temp->next;
     }
-
-    // Calculate GST and final amount
     float gstAmount = grandTotal * GST_RATE;
     float finalAmount = grandTotal + gstAmount;
 
@@ -154,13 +126,10 @@ void displayTotalBill() {
     printf("Total Amount : %.2f INR\n", finalAmount);
 }
 
-// Main Menu for User Interaction
+// Main Menu
 int main() {
-    // Seed random number generator for delivery status logic
     srand(time(0));
-
-    // Add sample products
-    addProduct(1, "Laptop", 499.99, 10);    // Prices in USD
+    addProduct(1, "Laptop", 499.99, 10);   
     addProduct(2, "Headphones", 29.99, 50);
     addProduct(3, "Keyboard", 19.99, 20);
 
