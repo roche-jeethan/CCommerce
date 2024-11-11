@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #define MAX_PRODUCTS 100
 #define INR_CONVERSION_RATE 84.83
 #define GST_RATE 0.05
@@ -128,7 +127,6 @@ void displayTotalBill() {
 
 // Main Menu
 int main() {
-    srand(time(0));
     addProduct(1, "Laptop", 499.99, 10);   
     addProduct(2, "Headphones", 29.99, 50);
     addProduct(3, "Keyboard", 19.99, 20);
